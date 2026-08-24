@@ -149,6 +149,14 @@ function sampleOffsetPath(curve: Cubic, offset: number): Vec2[] {
   return pts
 }
 
+function pathLength(pts: Vec2[]): number {
+  let len = 0
+  for (let i = 1; i < pts.length; i++) {
+    len += Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y)
+  }
+  return len
+}
+
 const ACCENT = '#e8a33d'
 const INK_FAINT = '#6d6f78'
 const BORDER_SOFT = '#1d2027'
@@ -240,11 +248,16 @@ export function HeroDiagram() {
       const longL = [...sampleOffsetPath(seg1, OFFSET_LONG), ...sampleOffsetPath(seg2, OFFSET_LONG)]
       const longR = [...sampleOffsetPath(seg1, -OFFSET_LONG), ...sampleOffsetPath(seg2, -OFFSET_LONG)]
 
-      // Tension ~ instantaneous driving torque direction, for tendon styling.
-      const drive1 = TORQUE1_AMP * Math.sin(2 * Math.PI * FREQ * simTime)
-      const drive2 = TORQUE2_AMP * Math.sin(2 * Math.PI * FREQ * simTime + PHASE)
-      const tensionR1 = 0.5 + 0.5 * Math.max(-1, Math.min(1, drive1 / TORQUE1_AMP))
-      const tensionR2 = 0.5 + 0.5 * Math.max(-1, Math.min(1, drive2 / TORQUE2_AMP))
+      // A tendon's own curvature isn't just the hip tangent angle — it's how
+      // much the path bends along its length (a parallel offset curve is
+      // literally shorter on the concave side, longer on the convex side,
+      // like the inner vs. outer rail of a curved track). So measure the
+      // sampled paths' actual arc lengths directly: the shorter one is the
+      // one being pulled taut.
+      const tensionFromLengths = (lenR: number, lenL: number) =>
+        0.5 - 0.5 * Math.tanh((lenR - lenL) * 0.08)
+      const tensionR1 = tensionFromLengths(pathLength(shortR), pathLength(shortL))
+      const tensionR2 = tensionFromLengths(pathLength(longR), pathLength(longL))
 
       ctx.clearRect(0, 0, 320, 360)
 
