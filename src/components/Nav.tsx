@@ -2,7 +2,6 @@ import { TendonMark } from './TendonMark'
 
 const links = [
   { href: '#research', label: 'Research' },
-  { href: '#approach', label: 'Approach' },
   { href: '#roadmap', label: 'Roadmap' },
   { href: '#team', label: 'Team' },
   { href: '#get-involved', label: 'Get Involved' },
