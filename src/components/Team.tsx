@@ -1,4 +1,25 @@
-const team = [
+import { BrandOrbIcon } from './BrandOrbIcon'
+import { JoinTeam } from './JoinTeam'
+import { MaskedHeading } from './MaskedHeading'
+
+type TeamMember = {
+  name: string
+  program: string
+  role: string
+  focus: string
+  linkedin: string
+  x?: string
+  email: string
+}
+
+type SocialLink = {
+  label: string
+  href: string
+  variant: 'linkedin' | 'x' | 'email'
+  external: boolean
+}
+
+const team: TeamMember[] = [
   {
     name: 'John Liao',
     program: 'Computer Science, 2A Co-op',
@@ -11,55 +32,75 @@ const team = [
     name: 'Haaris Sadiq',
     program: 'Mechatronics Engineering, 2A',
     role: 'Technical Project Manager',
-    focus: 'Mechanical & electrical design, fabrication, firmware',
+    focus: 'Mechanical & electrical design, fabrication, firmware, marketing, and sponsorships',
     linkedin: 'https://www.linkedin.com/in/haaris-sadiq/',
+    x: 'https://x.com/byHaarisSadiq',
     email: 's.haaris.2020@gmail.com',
   },
 ]
 
+const socialLinks = (member: TeamMember) => {
+  const links: SocialLink[] = [
+    {
+      label: `${member.name} on LinkedIn`,
+      href: member.linkedin,
+      variant: 'linkedin' as const,
+      external: true,
+    },
+    {
+      label: `Email ${member.name}`,
+      href: `mailto:${member.email}`,
+      variant: 'email' as const,
+      external: false,
+    },
+  ]
+
+  if (member.x) {
+    links.splice(1, 0, {
+      label: `${member.name} on X`,
+      href: member.x,
+      variant: 'x' as const,
+      external: true,
+    })
+  }
+
+  return links
+}
+
 export function Team() {
   return (
-    <section id="team" className="border-b border-border-soft">
-      <div className="mx-auto max-w-5xl px-6 py-20">
-        <p className="font-mono text-xs tracking-widest text-accent">TEAM</p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          Technical project managers
-        </h2>
+    <section id="team" className="section-panel--dark border-b border-border-soft bg-bg py-28 sm:py-36">
+      <div className="section-shell">
+        <MaskedHeading lines={['The Team']} className="team-heading section-title text-ink" />
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        <div className="team-grid">
           {team.map((m) => (
-            <div key={m.name} className="rounded-xl border border-border bg-surface p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-base font-medium text-ink">{m.name}</h3>
-                  <p className="mt-0.5 text-sm text-ink-faint">{m.program}</p>
-                </div>
-                <span className="shrink-0 rounded-full border border-accent/30 bg-accent-soft px-2.5 py-1 text-xs text-accent">
-                  TPM
-                </span>
-              </div>
+            <article key={m.name} className="team-member">
+              <h3>{m.name}</h3>
+              <p className="team-member__program">{m.program}</p>
+              <p className="team-member__role">{m.role}</p>
+              <p className="team-member__focus">{m.focus}</p>
 
-              <p className="mt-4 text-sm leading-relaxed text-ink-dim">{m.focus}</p>
-
-              <div className="mt-5 flex flex-wrap gap-4 border-t border-border-soft pt-4 text-sm">
-                <a
-                  href={m.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-ink-dim transition hover:text-accent"
-                >
-                  LinkedIn ↗
-                </a>
-                <a
-                  href={`mailto:${m.email}`}
-                  className="text-ink-dim transition hover:text-accent"
-                >
-                  {m.email}
-                </a>
+              <div className="team-member__socials" aria-label={`${m.name}'s contact links`}>
+                {socialLinks(m).map((social) => (
+                  <a
+                    key={social.variant}
+                    href={social.href}
+                    target={social.external ? '_blank' : undefined}
+                    rel={social.external ? 'noopener noreferrer' : undefined}
+                    className={`team-social-link team-social-link--${social.variant}`}
+                    aria-label={social.label}
+                    title={social.label}
+                  >
+                    <BrandOrbIcon variant={social.variant} tone="dark" />
+                  </a>
+                ))}
               </div>
-            </div>
+            </article>
           ))}
         </div>
+
+        <JoinTeam />
       </div>
     </section>
   )

@@ -1,54 +1,53 @@
+import { ScrollInstrument, type InstrumentVariant } from './ScrollInstrument'
+import { MaskedHeading } from './MaskedHeading'
+
 const phases = [
   {
-    tag: 'Phase 1',
     when: 'Fall 2026',
     title: 'Single leg',
     body: 'CAD, build, and bench-test a single two-segment tendon-driven leg. Train and evaluate RL policies on it in simulation and in real life.',
     active: true,
+    visual: 'flow' as InstrumentVariant,
   },
   {
-    tag: 'Phase 2',
     when: 'Winter 2027',
     title: 'Full quadruped',
     body: 'Scale to four independently actuated legs, train locomotion policies, and write up findings for CUCAI.',
     active: false,
+    visual: 'layers' as InstrumentVariant,
   },
 ]
 
 export function Roadmap() {
   return (
-    <section id="roadmap" className="border-b border-border-soft">
-      <div className="mx-auto max-w-5xl px-6 py-20">
-        <p className="font-mono text-xs tracking-widest text-accent">ROADMAP</p>
-        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-          Two phases, single leg first
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm text-ink-dim">
-          We're keeping this deliberately incremental — a working, well
-          characterized single leg before scaling to four.
-        </p>
+    <section id="roadmap" className="section-panel--dark border-b border-border-soft bg-bg py-28 sm:py-36">
+      <div className="section-shell">
+        <MaskedHeading lines={['Roadmap']} className="roadmap-heading section-title text-ink" />
 
-        <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2">
-          {phases.map((p) => (
-            <div key={p.tag} className="bg-surface p-6 sm:p-8">
-              <div className="flex items-center justify-between">
-                <span
-                  className={
-                    'font-mono text-xs tracking-widest ' +
-                    (p.active ? 'text-accent' : 'text-ink-faint')
-                  }
-                >
-                  {p.tag.toUpperCase()}
-                </span>
-                <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-ink-faint">
-                  {p.when}
-                </span>
-              </div>
-              <h3 className="mt-4 text-lg font-medium text-ink">{p.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-dim">{p.body}</p>
-            </div>
+        <ol className="mt-20 border-t border-border">
+          {phases.map((p, index) => (
+            <li key={p.title} className="roadmap-phase grid gap-5 border-b border-border py-8">
+              <span
+                className={`roadmap-phase__index ${p.active ? 'text-2xl font-medium text-accent' : 'text-2xl font-medium text-ink-faint'}`}
+              >
+                0{index + 1}
+              </span>
+              <p className="roadmap-phase__when text-sm text-ink-faint">{p.when}</p>
+              <h3 className="roadmap-phase__title text-xl font-medium tracking-[-0.02em] text-ink">{p.title}</h3>
+              <p className="roadmap-phase__body max-w-xl text-sm leading-7 text-ink-dim">{p.body}</p>
+              <ScrollInstrument
+                variant={p.visual}
+                ariaLabel={
+                  p.title === 'Single leg'
+                    ? 'Animated single-leg control surface'
+                    : 'Animated full-quadruped control layers'
+                }
+                tone="orange"
+                className="roadmap-phase__instrument scroll-instrument--compact"
+              />
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   )
