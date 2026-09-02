@@ -15,8 +15,10 @@ export function Abstract() {
         </div>
 
         <div className="research-instruments">
-          <ScrollInstrument variant="cylinders" ariaLabel="Animated tendon-driven joint system" />
-          <ScrollInstrument variant="nodes" ariaLabel="Animated coordinated control nodes" />
+          <ScrollInstrument
+            variant="leg"
+            ariaLabel="Simulated two-segment tendon-driven leg, bending under differential tendon tension"
+          />
         </div>
       </div>
     </section>

@@ -1,5 +1,17 @@
 import { useState } from 'react'
+import { KinesisLogo } from './KinesisLogo'
 import { MaskedHeading } from './MaskedHeading'
+
+const contactHref =
+  'mailto:j73liao@uwaterloo.ca,hisadiq@uwaterloo.ca?subject=Gradus%20RL%20sponsorship%20and%20collaboration'
+
+const sponsors = [
+  {
+    name: 'Kinesis',
+    href: 'https://kinesis.network/',
+    logo: KinesisLogo,
+  },
+]
 
 const collaborationAreas = [
   {
@@ -27,13 +39,8 @@ export function Collaborate() {
       <div className="section-shell collaborate-layout">
         <div className="collaborate-heading">
           <MaskedHeading lines={['Sponsor.', 'Collaborate.']} className="section-title text-ink" />
-          <a
-            href="https://www.linkedin.com/in/haaris-sadiq/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="collaborate-link"
-          >
-            Contact Haaris on LinkedIn
+          <a href={contactHref} className="collaborate-link">
+            Contact us
           </a>
         </div>
 
@@ -73,6 +80,31 @@ export function Collaborate() {
                 </li>
               )
             })}
+          </ul>
+        </div>
+
+        <div className="sponsor-roster">
+          <div className="sponsor-roster__intro">
+            <p className="sponsor-roster__label">Our sponsors</p>
+            <p className="sponsor-roster__note">
+              Supporting the hardware, compute, and research that move this project from simulation to a physical robot.
+            </p>
+          </div>
+
+          <ul className="sponsor-roster__list">
+            {sponsors.map(({ name, href, logo: Logo }) => (
+              <li key={name}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="sponsor-card"
+                  aria-label={`${name} — visit website`}
+                >
+                  <Logo className="sponsor-card__logo" />
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

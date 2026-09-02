@@ -68,7 +68,7 @@ export function Footer() {
           <a href="https://watai.ca" target="_blank" rel="noopener noreferrer">
             WAT.ai
           </a>
-          <a href="https://www.linkedin.com/in/haaris-sadiq/" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.linkedin.com/company/wat-ai/" target="_blank" rel="noopener noreferrer">
             LinkedIn
           </a>
         </div>

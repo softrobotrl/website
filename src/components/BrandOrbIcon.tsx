@@ -17,46 +17,9 @@ const LINKEDIN_PATH =
   'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z'
 const X_PATH =
   'M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z'
-const GMAIL_LEFT_PATH = 'M46 44H8v110c0 6.627 5.373 12 12 12h20a6 6 0 0 0 6-6z'
-const GMAIL_RIGHT_PATH = 'M146 44h38v110c0 6.627-5.373 12-12 12h-20a6 6 0 0 1-6-6z'
-const GMAIL_TOP_PATH =
-  'M39.226 30.456c-8.033-6.752-20.018-5.714-26.77 2.319-6.752 8.032-5.714 20.017 2.319 26.77l76.078 63.949a8 8 0 0 0 10.295 0l76.078-63.95c8.032-6.752 9.07-18.737 2.318-26.77-6.752-8.032-18.737-9.07-26.769-2.318L96 78.18z'
-
-type ColorStop = readonly [number, readonly [number, number, number]]
-
-const gmailRightStops: readonly ColorStop[] = [
-  [0, [96, 214, 115]],
-  [0.17, [66, 200, 104]],
-  [0.39, [14, 188, 95]],
-  [0.62, [0, 169, 187]],
-  [0.86, [60, 144, 255]],
-  [1, [49, 134, 255]],
-]
-
-const gmailTopStops: readonly ColorStop[] = [
-  [0, [255, 99, 160]],
-  [0.3, [252, 65, 61]],
-  [0.65, [252, 65, 61]],
-  [0.72, [252, 92, 48]],
-  [0.86, [254, 177, 12]],
-  [0.96, [255, 219, 15]],
-  [1, [255, 219, 15]],
-]
-
-function interpolateColor(stops: readonly ColorStop[], position: number): readonly [number, number, number] {
-  const clamped = Math.max(0, Math.min(1, position))
-  const upperIndex = stops.findIndex(([stop]) => stop >= clamped)
-  if (upperIndex <= 0) return stops[0][1]
-  const [lowerStop, lowerColor] = stops[upperIndex - 1]
-  const [upperStop, upperColor] = stops[upperIndex]
-  const progress = (clamped - lowerStop) / (upperStop - lowerStop || 1)
-
-  return lowerColor.map((channel, index) => Math.round(channel + (upperColor[index] - channel) * progress)) as [
-    number,
-    number,
-    number,
-  ]
-}
+// Envelope: outer body, an even-odd hole, then the flap chevron filled back in.
+const MAIL_PATH = 'M1 4H23V20H1Z M3.6 6.6H20.4V17.4H3.6Z M3.6 6.6L12 13.2L20.4 6.6L20.4 9.4L12 16L3.6 9.4Z'
+const ACCENT_RGB = [255, 85, 0] as const
 
 function samplePath(
   pathData: string,
@@ -112,11 +75,7 @@ function getGeometry(variant: BrandOrbIconProps['variant']) {
   } else if (variant === 'x') {
     dots = samplePath(X_PATH, 24, 29, () => [244, 241, 236])
   } else {
-    dots = [
-      ...samplePath(GMAIL_LEFT_PATH, 192, 29, () => [252, 65, 61]),
-      ...samplePath(GMAIL_RIGHT_PATH, 192, 29, (_x, y) => interpolateColor(gmailRightStops, y)),
-      ...samplePath(GMAIL_TOP_PATH, 192, 29, (x) => interpolateColor(gmailTopStops, x)),
-    ]
+    dots = samplePath(MAIL_PATH, 24, 27, () => ACCENT_RGB, 'evenodd')
   }
 
   geometryCache.set(variant, dots)
@@ -152,7 +111,7 @@ export function BrandOrbIcon({ variant, tone = 'dark' }: BrandOrbIconProps) {
     const render = (time: number) => {
       const seconds = time / 1000
       const center = size / 2
-      const scale = variant === 'email' ? 44 : 42
+      const scale = 42
       const tiltX = Math.sin(seconds * 0.42) * 0.025
       const tiltY = Math.sin(seconds * 0.34) * 0.035
       const sweep = (seconds * (hoveredRef.current ? 0.36 : 0.21)) % 1

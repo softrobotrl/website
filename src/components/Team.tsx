@@ -26,16 +26,16 @@ const team: TeamMember[] = [
     role: 'Technical Project Manager',
     focus: 'RL policy & simulation, paper write-up, external collaboration',
     linkedin: 'https://www.linkedin.com/in/john-liao-1b8452317/',
-    email: 'johnliao5@gmail.com',
+    email: 'j73liao@uwaterloo.ca',
   },
   {
     name: 'Haaris Sadiq',
     program: 'Mechatronics Engineering, 2A',
     role: 'Technical Project Manager',
-    focus: 'Mechanical & electrical design, fabrication, firmware, marketing, and sponsorships',
+    focus: 'Mechanical & electrical design, fabrication, firmware and marketing.',
     linkedin: 'https://www.linkedin.com/in/haaris-sadiq/',
     x: 'https://x.com/byHaarisSadiq',
-    email: 's.haaris.2020@gmail.com',
+    email: 'hisadiq@uwaterloo.ca',
   },
 ]
 

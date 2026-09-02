@@ -1,8 +1,8 @@
 export const TENDON_VIEWBOX_HEIGHT = 3200
 export const TENDON_VIEWBOX_WIDTH = 1440
 export const TENDON_STROKE_WIDTH = 2.25
-const TENDON_GAP_SCALE = 0.56
-const TENDON_GAP_MAX = 184
+const TENDON_GAP_SCALE = 0.68
+const TENDON_GAP_MAX = 268
 
 export type TendonPoint = { x: number; y: number }
 export type TendonGap = TendonPoint & { rx: number; ry: number }
