@@ -3,7 +3,7 @@ import { KinesisLogo } from './KinesisLogo'
 import { MaskedHeading } from './MaskedHeading'
 
 const contactHref =
-  'mailto:j73liao@uwaterloo.ca,hisadiq@uwaterloo.ca?subject=Gradus%20RL%20sponsorship%20and%20collaboration'
+  'mailto:j73liao@uwaterloo.ca,hisadiq@uwaterloo.ca?cc=contact@watai.ca&subject=Gradus%20RL%20sponsorship%20and%20collaboration'
 
 const sponsors = [
   {
