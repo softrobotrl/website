@@ -4,7 +4,6 @@ import { createInstrumentRenderer, type InstrumentVariant } from './instruments/
 import { useTendonField } from './tendonFieldContext'
 
 export type { InstrumentVariant } from './instruments/instrumentRenderer'
-export type DiagonalSpinDirection = 'northwest' | 'southwest' | 'northeast' | 'southeast'
 
 interface ScrollInstrumentProps {
   variant: InstrumentVariant
@@ -13,7 +12,6 @@ interface ScrollInstrumentProps {
   className?: string
   forceActive?: boolean
   pointerReactive?: boolean
-  diagonalSpin?: DiagonalSpinDirection
 }
 
 export function ScrollInstrument({
@@ -23,7 +21,6 @@ export function ScrollInstrument({
   className = '',
   forceActive = false,
   pointerReactive = false,
-  diagonalSpin,
 }: ScrollInstrumentProps) {
   const rootRef = useRef<HTMLElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -82,11 +79,14 @@ export function ScrollInstrument({
     let strength = forceActive ? 1 : 0
     let last = performance.now()
     let elapsed = 0
+    let emphasis = 0
+    let targetEmphasis = 0
     let pointerX = 0
     let pointerY = 0
     let targetPointerX = 0
     let targetPointerY = 0
     const animationRate = variant === 'cylinders' ? 0.35 : 1
+    const compactLayout = window.matchMedia('(max-width: 899px)')
 
     function requestRender() {
       if (visible && document.visibilityState === 'visible' && !frame) frame = requestAnimationFrame(render)
@@ -112,6 +112,7 @@ export function ScrollInstrument({
       last = now
       if (isActive && !reduceMotion) elapsed += (delta / 1000) * animationRate
       strength += ((isActive ? 1 : 0) - strength) * (reduceMotion ? 1 : 0.055)
+      emphasis += (targetEmphasis - emphasis) * (reduceMotion ? 1 : 0.15)
       pointerX += (targetPointerX - pointerX) * 0.075
       pointerY += (targetPointerY - pointerY) * 0.075
 
@@ -121,29 +122,17 @@ export function ScrollInstrument({
       context2d.translate(width / 2, height / 2)
       const scale = Math.min(width, height) / 250
       context2d.scale(scale, scale)
-      const diagonalRotation = (() => {
-        if (!diagonalSpin || reduceMotion) return undefined
-
-        const progress = Math.min(1, elapsed / 1.35)
-        const easedProgress = progress * progress * (3 - 2 * progress)
-        const turn = Math.PI * 2.35 * easedProgress
-        const verticalDirection = diagonalSpin.startsWith('north') ? -1 : 1
-        const horizontalDirection = diagonalSpin.endsWith('west') ? -1 : 1
-
-        return {
-          x: turn * 0.72 * verticalDirection,
-          y: turn * horizontalDirection,
-        }
-      })()
       drawInstrument(
         context2d,
         elapsed,
         strength,
-        diagonalRotation ?? (pointerReactive && !reduceMotion ? { x: pointerY * 0.65, y: pointerX * 0.9 } : undefined),
+        pointerReactive && !reduceMotion ? { x: pointerY * 0.65, y: pointerX * 0.9 } : undefined,
+        emphasis,
+        compactLayout.matches,
       )
       context2d.restore()
 
-      if (isActive && !reduceMotion) requestRender()
+      if ((isActive && !reduceMotion) || Math.abs(targetEmphasis - emphasis) > 0.001) requestRender()
     }
 
     const visibilityObserver = new IntersectionObserver(
@@ -171,6 +160,16 @@ export function ScrollInstrument({
       targetPointerX = 0
       targetPointerY = 0
     }
+    const hoverSource = variant === 'leg' ? root.closest<HTMLElement>('.research-bench__leg') : null
+    const onEmphasisEnter = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') return
+      targetEmphasis = 1
+      requestRender()
+    }
+    const onEmphasisLeave = () => {
+      targetEmphasis = 0
+      requestRender()
+    }
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') requestRender()
       else if (frame) {
@@ -186,6 +185,8 @@ export function ScrollInstrument({
       pointerSource.addEventListener('pointermove', onPointerMove, { passive: true })
       pointerSource.addEventListener('pointerleave', onPointerLeave)
     }
+    hoverSource?.addEventListener('pointerenter', onEmphasisEnter)
+    hoverSource?.addEventListener('pointerleave', onEmphasisLeave)
     document.addEventListener('visibilitychange', onVisibilityChange)
     requestRender()
 
@@ -195,9 +196,11 @@ export function ScrollInstrument({
       resizeObserver.disconnect()
       pointerSource?.removeEventListener('pointermove', onPointerMove)
       pointerSource?.removeEventListener('pointerleave', onPointerLeave)
+      hoverSource?.removeEventListener('pointerenter', onEmphasisEnter)
+      hoverSource?.removeEventListener('pointerleave', onEmphasisLeave)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [diagonalSpin, forceActive, isActive, pointerReactive, reduceMotion, tone, variant])
+  }, [forceActive, isActive, pointerReactive, reduceMotion, tone, variant])
 
   return (
     <figure

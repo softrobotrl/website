@@ -6,7 +6,6 @@ import { Hero } from './components/Hero'
 import { Nav } from './components/Nav'
 import { NotFound } from './components/NotFound'
 import { Roadmap } from './components/Roadmap'
-import { SiteLoader } from './components/SiteLoader'
 import { Team } from './components/Team'
 import { TendonField } from './components/TendonField'
 import { isHomePath } from './sitePath'
@@ -18,7 +17,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <SiteLoader />
       <Nav />
       <main id="main-content" tabIndex={-1} className="relative overflow-x-clip">
         <Hero />

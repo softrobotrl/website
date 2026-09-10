@@ -85,37 +85,6 @@ button {
   color: var(--color-accent-ink);
 }
 
-.site-loader {
-  position: fixed;
-  z-index: 70;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: #ff5500;
-}
-
-.site-loader__mark {
-  width: clamp(10rem, 18vw, 15rem);
-  aspect-ratio: 1;
-  will-change: transform;
-}
-
-.site-loader__instrument {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-}
-
-.site-loader__instrument::before {
-  display: none;
-}
-
-.site-loader__instrument canvas,
-.site-loader__instrument[data-tendon-active='true'] canvas {
-  opacity: 1;
-}
-
 .not-found-page {
   position: relative;
   isolation: isolate;
@@ -549,12 +518,6 @@ button {
   text-wrap: balance;
 }
 
-@media (max-width: 599px) {
-  .research-instruments .scroll-instrument {
-    min-height: 300px;
-  }
-}
-
 .body-copy {
   max-width: 68ch;
   color: var(--color-ink-dim);
@@ -650,10 +613,50 @@ button {
   justify-items: center;
 }
 
-.research-instruments .scroll-instrument {
+.research-bench {
   width: 100%;
-  max-width: 27rem;
-  min-height: 340px;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+.research-bench__leg {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.research-bench p {
+  margin: 0.4rem 0 0;
+  color: #29231d;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.research-bench p span {
+  display: block;
+  margin-top: 0.2rem;
+  color: #655c52;
+  font-size: 0.75rem;
+  font-weight: 400;
+  transition: color 180ms ease;
+}
+
+.research-bench .scroll-instrument {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+}
+
+.research-bench__leg .scroll-instrument {
+  height: clamp(20rem, 29vw, 25rem);
+}
+
+.research-bench .scroll-instrument canvas {
+  opacity: 0.85;
+}
+
+.research-bench .scroll-instrument[data-tendon-active='true'] canvas {
+  opacity: 1;
 }
 
 .scroll-instrument {
@@ -701,7 +704,7 @@ button {
   opacity: 1;
 }
 
-.scroll-instrument:not(.hero-instrument):not(.site-loader__instrument) canvas {
+.scroll-instrument:not(.hero-instrument) canvas {
   filter: brightness(1);
   transition:
     opacity 400ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -741,10 +744,18 @@ button {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .scroll-instrument:not(.hero-instrument):not(.site-loader__instrument):hover canvas {
+  .scroll-instrument:not(.hero-instrument):not([data-instrument-variant='leg']):hover canvas {
     opacity: 1;
     filter: brightness(1.28) saturate(1.1) drop-shadow(0 0 3px rgb(255 85 0 / 72%))
       drop-shadow(0 0 8px rgb(255 85 0 / 38%));
+  }
+
+  .research-bench__leg:hover .scroll-instrument canvas {
+    opacity: 1;
+  }
+
+  .research-bench__leg:hover p span {
+    color: #ad3900;
   }
 
   .roadmap-phase:hover::before,
@@ -1019,32 +1030,9 @@ button {
   text-wrap: pretty;
 }
 
-.join-team__links {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-top: 1.75rem;
-}
-
-.join-team__link {
-  display: inline-flex;
-  min-height: 46px;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.25rem;
+.join-team__copy strong {
   color: var(--color-ink);
-  border: 1px solid rgb(255 255 255 / 20%);
-  border-radius: 999px;
-  font-size: 0.875rem;
   font-weight: 600;
-  text-decoration: none;
-  transition: border-color 150ms ease;
-}
-
-.join-team__link:hover,
-.join-team__link:focus-visible {
-  border-color: var(--color-accent);
 }
 
 .collaborate-link {
@@ -1068,7 +1056,7 @@ button {
   width: 100vw;
   height: clamp(300px, 32vw, 430px);
   margin-top: clamp(1rem, 2vw, 1.75rem);
-  margin-bottom: -7rem;
+  margin-bottom: clamp(1rem, 2.5vw, 2.5rem);
   margin-left: calc(50% - 50vw);
   overflow: hidden;
 }
@@ -1467,6 +1455,7 @@ button {
 }
 
 .ascii-hands {
+  --hands-approach: 0;
   position: relative;
   isolation: isolate;
   width: 100%;
@@ -1476,6 +1465,8 @@ button {
 }
 
 .ascii-hands__field {
+  opacity: calc(0.4 + var(--hands-approach) * 0.6);
+  filter: brightness(calc(0.8 + var(--hands-approach) * 0.75));
   position: absolute;
   top: 0;
   width: 75%;
@@ -1487,10 +1478,12 @@ button {
 
 .ascii-hands__field--human {
   left: 0;
+  transform: translateX(calc(-8% * (1 - var(--hands-approach))));
 }
 
 .ascii-hands__field--robot {
   right: 0;
+  transform: translateX(calc(8% * (1 - var(--hands-approach))));
 }
 
 .ascii-hands__canvas {
@@ -1513,10 +1506,6 @@ button {
 @media (min-width: 740px) {
   .team-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .join-team__visual {
-    margin-bottom: -9rem;
   }
 }
 
@@ -1606,11 +1595,6 @@ button {
 
   .research-layout {
     grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
-  }
-
-  .research-instruments .scroll-instrument {
-    max-width: 30rem;
-    min-height: 470px;
   }
 
   .blog-intro {
@@ -1723,6 +1707,202 @@ button {
 
   .top-dock__icon {
     display: inline-flex;
+  }
+}
+
+.research-bench__parts {
+  display: none;
+}
+
+/* Phone and tablet refinements are isolated from the desktop composition. */
+@media (max-width: 899px) {
+  #contact {
+    scroll-margin-top: 5.5rem;
+  }
+
+  .top-dock-shell {
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  .top-dock {
+    display: grid;
+    grid-template-columns: 44px repeat(5, minmax(0, 1fr));
+    width: calc(100% - 16px);
+    max-width: 44rem;
+    height: 60px;
+    background: rgb(13 11 9 / 94%);
+  }
+
+  .top-dock__item {
+    min-width: 0;
+    height: 50px !important;
+    transform: none !important;
+  }
+
+  .top-dock__logo {
+    width: 44px !important;
+  }
+
+  .top-dock__link {
+    width: auto !important;
+    flex-direction: column;
+    gap: 3px;
+    padding-inline: 1px;
+    font-size: clamp(0.5625rem, 2.55vw, 0.6875rem);
+    color: var(--color-ink-dim);
+  }
+
+  .top-dock__icon {
+    display: inline-flex;
+    width: 15px;
+    height: 15px;
+    opacity: 0.9;
+  }
+
+  .top-dock__link .scramble-text {
+    display: inline-flex;
+  }
+
+  #research,
+  #roadmap,
+  #team,
+  #sponsors {
+    padding-block: 4rem;
+  }
+
+  #team {
+    padding-bottom: 2rem;
+  }
+
+  .research-layout {
+    gap: 1.75rem;
+  }
+
+  .research-layout .body-copy {
+    margin-top: 1.5rem;
+    line-height: 1.7;
+  }
+
+  .research-bench .scroll-instrument canvas {
+    opacity: 1;
+  }
+
+  .research-bench__parts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    column-gap: 1rem;
+    row-gap: 0.35rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+    color: #514a43;
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  #roadmap ol {
+    margin-top: 2.5rem;
+  }
+
+  .blog-image-reveal {
+    height: auto;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(76vw, 17rem);
+    gap: 1rem;
+    justify-content: start;
+    padding: 0.5rem 0.25rem 1rem;
+    margin-top: 1.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scrollbar-color: #ad3900 #eee8e1;
+  }
+
+  .blog-reveal-card {
+    position: relative;
+    width: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .blog-placeholder__meta,
+  .blog-placeholder__footer {
+    font-size: 0.75rem;
+  }
+
+  .team-grid {
+    gap: 2.75rem;
+    margin-top: 2.75rem;
+  }
+
+  .team-member__role {
+    margin-top: 1.25rem;
+  }
+
+  .join-team {
+    margin-top: 2rem;
+    padding-top: 2rem;
+  }
+
+  .join-team__copy p {
+    line-height: 1.7;
+  }
+
+  .join-team__visual {
+    height: clamp(240px, 66vw, 300px);
+    margin-bottom: 0;
+  }
+
+  .gradient-footer__navigation {
+    column-gap: 1rem;
+  }
+
+  .gradient-footer__navigation a,
+  .gradient-footer__meta a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .gradient-footer__navigation > div {
+    gap: 0;
+  }
+}
+
+@media (max-width: 639px) {
+  .hero-instrument {
+    right: -11rem;
+    opacity: 0.2;
+  }
+
+  .hero-actions {
+    gap: 0.75rem;
+  }
+
+  .hero-actions a {
+    min-height: 46px;
+  }
+
+  .roadmap-phase {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: 0.75rem 1rem;
+  }
+
+  .roadmap-phase__body {
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+
+  .roadmap-phase__instrument {
+    align-self: center;
+    min-height: 160px;
+  }
+
+  .collaborate-layout {
+    gap: 2rem;
   }
 }
 

@@ -40,7 +40,7 @@ export function createTopDockController(root: HTMLElement, getOptions: () => Top
   }
 
   const canAnimate = () =>
-    !reducedQuery.matches && root.clientWidth > 0 && window.innerWidth > 800 && precisionQuery.matches
+    !reducedQuery.matches && root.clientWidth > 0 && window.innerWidth > 899 && precisionQuery.matches
 
   const measure = () => {
     enabled = canAnimate()

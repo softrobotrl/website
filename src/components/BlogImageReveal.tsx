@@ -44,10 +44,10 @@ function cardVariants(position: CardPosition, index: number): Variants {
 }
 
 function useCompactLayout() {
-  const [compact, setCompact] = useState(() => window.matchMedia('(max-width: 799px)').matches)
+  const [compact, setCompact] = useState(() => window.matchMedia('(max-width: 899px)').matches)
 
   useEffect(() => {
-    const query = window.matchMedia('(max-width: 799px)')
+    const query = window.matchMedia('(max-width: 899px)')
     const update = () => setCompact(query.matches)
     query.addEventListener('change', update)
     return () => query.removeEventListener('change', update)
@@ -135,16 +135,20 @@ export function BlogImageReveal() {
   const positions = compact ? compactPositions : desktopPositions
 
   return (
-    <figure className="blog-image-reveal" aria-label="Three forthcoming blog image placeholders">
+    <figure
+      className="blog-image-reveal"
+      aria-label="Three forthcoming blog image placeholders"
+      tabIndex={compact ? 0 : undefined}
+    >
       {placeholders.map((placeholder, index) => (
         <motion.div
           key={placeholder.title}
           className="blog-reveal-card"
-          variants={cardVariants(positions[index], index)}
-          initial={reducedMotion ? 'animate' : 'initial'}
-          animate={reducedMotion ? 'animate' : undefined}
-          whileInView={reducedMotion ? undefined : 'animate'}
-          whileHover={reducedMotion ? undefined : 'hover'}
+          variants={compact ? undefined : cardVariants(positions[index], index)}
+          initial={compact ? false : reducedMotion ? 'animate' : 'initial'}
+          animate={!compact && reducedMotion ? 'animate' : undefined}
+          whileInView={compact || reducedMotion ? undefined : 'animate'}
+          whileHover={compact || reducedMotion ? undefined : 'hover'}
           viewport={{ once: true, amount: 0.45 }}
           style={{ zIndex: placeholders.length - index }}
         >
