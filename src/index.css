@@ -844,32 +844,96 @@ button {
   font-weight: 700;
 }
 
-.blog-placeholder svg {
+.blog-card-media {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #0d0c0a;
+}
+
+.blog-card-media img,
+.blog-card-media video {
   display: block;
   width: 100%;
-  height: auto;
-  min-height: 0;
-  margin: auto 0;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.35;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  height: 100%;
+  object-fit: cover;
 }
 
-.blog-placeholder__wireframe-faint {
-  stroke: rgb(23 19 15 / 25%);
-  stroke-width: 0.9;
+.blog-card-media--contain video {
+  object-fit: contain;
 }
 
-.blog-placeholder__accent-stroke {
-  stroke: var(--color-accent);
-  stroke-width: 1.45;
+.blog-card-open {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: zoom-in;
 }
 
-.blog-placeholder .blog-placeholder__accent-fill {
-  fill: var(--color-accent);
-  stroke: var(--color-accent);
+.blog-card-open:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -4px;
+}
+
+.blog-lightbox {
+  width: min(64rem, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100svh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.blog-lightbox::backdrop {
+  background: rgb(9 8 6 / 82%);
+  backdrop-filter: blur(4px);
+}
+
+.blog-lightbox__panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.blog-lightbox__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.blog-lightbox__close {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  color: var(--color-ink);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.blog-lightbox__close:hover,
+.blog-lightbox__close:focus-visible {
+  border-color: var(--color-accent);
+}
+
+.blog-lightbox__media {
+  display: block;
+  width: 100%;
+  max-height: calc(100svh - 32px - 3.2rem);
+  object-fit: contain;
+  background: #0d0c0a;
 }
 
 .blog-placeholder__footer {
