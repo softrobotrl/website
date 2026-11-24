@@ -14,11 +14,24 @@ export function Abstract() {
           </p>
         </div>
 
-        <div className="research-instruments">
-          <ScrollInstrument
-            variant="leg"
-            ariaLabel="Simulated two-segment tendon-driven leg, bending under differential tendon tension"
-          />
+        <div
+          className="research-instruments research-bench"
+          aria-label="Animated design concept of a tendon-driven leg"
+        >
+          <div className="research-bench__leg">
+            <ScrollInstrument
+              variant="leg"
+              ariaLabel="Tendon-driven soft leg concept with servo winches, cable guides, two flexible segments, and a foot"
+            />
+            <ul className="research-bench__parts" aria-label="Leg components">
+              <li>Servo winches</li>
+              <li>Cable guides</li>
+              <li>Flexible backbone</li>
+            </ul>
+            <p>
+              Two-segment leg <span>Design concept</span>
+            </p>
+          </div>
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
-import { createLegSimulation, type LegGeometry } from './legDynamics'
+import { createLegSimulation } from './legDynamics'
+import { drawLegMockup } from './legMockupRenderer'
 
 export type InstrumentVariant = 'flow' | 'layers' | 'nodes' | 'cube' | 'sphere' | 'cylinders' | 'leg'
 
@@ -250,43 +251,6 @@ function drawWireframe(
   })
 }
 
-function strokePolyline(ctx: CanvasRenderingContext2D, points: Array<{ x: number; y: number }>) {
-  ctx.beginPath()
-  ctx.moveTo(points[0].x, points[0].y)
-  for (let i = 1; i < points.length; i += 1) ctx.lineTo(points[i].x, points[i].y)
-  ctx.stroke()
-}
-
-function drawLeg(ctx: CanvasRenderingContext2D, geometry: LegGeometry, strength: number, stroke: string) {
-  const gate = 0.18 + strength * 0.82
-
-  ctx.lineWidth = 1.4
-  ctx.strokeStyle = withAlpha(stroke, 0.88 * gate)
-  strokePolyline(ctx, geometry.mount)
-  strokePolyline(ctx, geometry.spine)
-
-  ctx.lineWidth = 0.9
-  geometry.ribs.forEach(([a, b], index) => {
-    ctx.strokeStyle = withAlpha(stroke, (0.46 - index * 0.012) * gate)
-    ctx.beginPath()
-    ctx.moveTo(a.x, a.y)
-    ctx.lineTo(b.x, b.y)
-    ctx.stroke()
-  })
-
-  // Brightness tracks tendon tension: the taut side of each pair leads.
-  geometry.tendons.forEach(({ points, tension }) => {
-    ctx.lineWidth = 0.6 + tension * 0.7
-    ctx.strokeStyle = withAlpha(stroke, (0.16 + tension * 0.56) * gate)
-    strokePolyline(ctx, points)
-  })
-
-  ctx.fillStyle = withAlpha(stroke, gate)
-  geometry.joints.forEach((point) => ctx.fillRect(point.x - 1.6, point.y - 1.6, 3.2, 3.2))
-  ctx.fillStyle = withAlpha(stroke, 0.6 * gate)
-  geometry.anchors.forEach((point) => ctx.fillRect(point.x - 1, point.y - 1, 2, 2))
-}
-
 export function createInstrumentRenderer(variant: InstrumentVariant, tone: 'orange' | 'black') {
   const wireVariant = variant === 'cube' || variant === 'sphere' || variant === 'cylinders' ? variant : null
   const geometry = wireVariant ? makeWireGeometry(wireVariant) : null
@@ -295,14 +259,21 @@ export function createInstrumentRenderer(variant: InstrumentVariant, tone: 'oran
   const leg = variant === 'leg' ? createLegSimulation() : null
   let lastLegTime = 0
 
-  return (ctx: CanvasRenderingContext2D, time: number, strength: number, rotation?: InstrumentRotation) => {
+  return (
+    ctx: CanvasRenderingContext2D,
+    time: number,
+    strength: number,
+    rotation?: InstrumentRotation,
+    emphasis = 0,
+    compact = false,
+  ) => {
     if (variant === 'layers') drawLayers(ctx, time, strength, fill, stroke)
     else if (variant === 'nodes') drawNodes(ctx, time, strength, stroke)
     else if (variant === 'flow') drawFlow(ctx, time, strength, fill, stroke)
     else if (leg) {
       leg.advance(time - lastLegTime)
       lastLegTime = time
-      drawLeg(ctx, leg.geometry(), strength, stroke)
+      drawLegMockup(ctx, leg.geometry(), strength, emphasis, compact)
     } else if (geometry) drawWireframe(ctx, geometry, time, strength, stroke, rotation)
   }
 }

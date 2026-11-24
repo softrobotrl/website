@@ -115,6 +115,7 @@ export function TendonField({ children }: { children: ReactNode }) {
           const height = node.offsetHeight
           const gapDiameter = getTendonGapDiameter(width)
           return {
+            topY: ((nodePosition.y - fieldPosition.y) / fieldHeight) * TENDON_VIEWBOX_HEIGHT,
             x: ((nodePosition.x - fieldPosition.x + width / 2) / fieldWidth) * TENDON_VIEWBOX_WIDTH,
             y: ((nodePosition.y - fieldPosition.y + height / 2) / fieldHeight) * TENDON_VIEWBOX_HEIGHT,
             rx: (gapDiameter / 2 / fieldWidth) * TENDON_VIEWBOX_WIDTH,
@@ -123,7 +124,16 @@ export function TendonField({ children }: { children: ReactNode }) {
         })
         .sort((a, b) => a.y - b.y)
 
-      const points: TendonPoint[] = [DEFAULT_TENDON_POINTS[0], ...nodes]
+      // On narrow screens the research copy sits above its model. Keep the
+      // incoming line in the outer gutter until it reaches the artwork.
+      const entry: TendonPoint[] =
+        window.innerWidth < 900 && nodes.length
+          ? [
+              { x: TENDON_VIEWBOX_WIDTH * (1 - 6 / fieldWidth), y: 0 },
+              { x: TENDON_VIEWBOX_WIDTH * (1 - 6 / fieldWidth), y: Math.max(0, nodes[0].topY) },
+            ]
+          : [DEFAULT_TENDON_POINTS[0]]
+      const points: TendonPoint[] = [...entry, ...nodes]
       setGeometry(createSmoothTendonGeometry(points, nodes as TendonGap[]))
     }
 

@@ -1,5 +1,5 @@
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { useMotionValueEvent, useReducedMotion, useScroll } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 import humanHandImage from '../assets/human-hand-only.png'
 import robotHandImage from '../assets/robot-hand-only.png'
 import { AsciiPortrait } from './AsciiPortrait'
@@ -7,11 +7,20 @@ import { AsciiPortrait } from './AsciiPortrait'
 export function AsciiHands() {
   const stageRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
-  const { scrollYProgress } = useScroll({ target: stageRef, offset: ['start end', 'end start'] })
-  const progress = useSpring(scrollYProgress, { stiffness: 110, damping: 30, mass: 0.7 })
-  const humanX = useTransform(progress, [0, 0.16, 0.58], ['-4%', '-4%', '0%'])
-  const robotX = useTransform(progress, [0, 0.16, 0.58], ['4%', '4%', '0%'])
-  const handOpacity = useTransform(progress, [0, 0.16, 0.5], [0.24, 0.24, 1])
+  // Reveal the hands while their own artwork enters the viewport, not while
+  // the preceding copy is entering. Finish before the full stage is visible.
+  const { scrollYProgress } = useScroll({ target: stageRef, offset: ['start end', 'end end'] })
+  // Use one shared CSS value for all three effects. This keeps the two hands
+  // synchronized and avoids separate native scroll animations freezing opacity.
+  useMotionValueEvent(scrollYProgress, 'change', (value) => {
+    const approach = reduceMotion ? 1 : Math.max(0, Math.min(1, (value - 0.2) / 0.7))
+    stageRef.current?.style.setProperty('--hands-approach', String(approach))
+  })
+
+  useEffect(() => {
+    const approach = reduceMotion ? 1 : Math.max(0, Math.min(1, (scrollYProgress.get() - 0.2) / 0.7))
+    stageRef.current?.style.setProperty('--hands-approach', String(approach))
+  }, [reduceMotion, scrollYProgress])
 
   return (
     <div
@@ -20,11 +29,7 @@ export function AsciiHands() {
       role="img"
       aria-label="A human hand and robotic hand rendered in color ASCII"
     >
-      <motion.div
-        className="ascii-hands__field ascii-hands__field--human"
-        style={reduceMotion ? undefined : { x: humanX, opacity: handOpacity }}
-        aria-hidden="true"
-      >
+      <div className="ascii-hands__field ascii-hands__field--human" aria-hidden="true">
         <AsciiPortrait
           className="ascii-hands__canvas"
           image={humanHandImage}
@@ -32,12 +37,8 @@ export function AsciiHands() {
           darkOpacity={0.28}
           horizontalAlign="left"
         />
-      </motion.div>
-      <motion.div
-        className="ascii-hands__field ascii-hands__field--robot"
-        style={reduceMotion ? undefined : { x: robotX, opacity: handOpacity }}
-        aria-hidden="true"
-      >
+      </div>
+      <div className="ascii-hands__field ascii-hands__field--robot" aria-hidden="true">
         <AsciiPortrait
           className="ascii-hands__canvas"
           image={robotHandImage}
@@ -45,7 +46,7 @@ export function AsciiHands() {
           darkOpacity={0.34}
           horizontalAlign="right"
         />
-      </motion.div>
+      </div>
     </div>
   )
 }
