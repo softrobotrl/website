@@ -808,7 +808,7 @@ button {
 
 .blog-reveal-card {
   position: absolute;
-  width: clamp(14rem, 26vw, 19rem);
+  width: clamp(14rem, 24vw, 19rem);
   aspect-ratio: 1;
   padding: 1px;
   border: 1px solid var(--color-accent);
@@ -962,6 +962,14 @@ button {
 
 .blog-placeholder__footer span:last-child {
   color: var(--color-accent);
+}
+
+.blog-coming-soon {
+  margin: clamp(1.5rem, 3vw, 2.25rem) 0 0;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 @media (max-width: 420px) {

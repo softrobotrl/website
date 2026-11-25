@@ -1,5 +1,6 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
+import benchSessionImage from '../assets/blog/bench-session.webp'
 import buildLogImage from '../assets/blog/build-log.webp'
 import policyRolloutPoster from '../assets/blog/policy-rollout-poster.webp'
 import policyRolloutVideo from '../assets/blog/policy-rollout.mp4'
@@ -15,16 +16,30 @@ type CardPosition = {
   hoverRotate: number
 }
 
-const desktopPositions: CardPosition[] = [
-  { x: -244, y: 12, rotate: -8, hoverX: -252, hoverY: 0, hoverRotate: -2 },
-  { x: 0, y: 0, rotate: 6, hoverX: 0, hoverY: -9, hoverRotate: 1 },
-  { x: 252, y: 20, rotate: -6, hoverX: 260, hoverY: 7, hoverRotate: 2 },
+// Card centres as multiples of card width: 0.9 apart, so neighbours overlap by about 10% at every desktop size.
+const desktopLayout = [
+  { offset: -1.35, y: 14, rotate: -7, hoverY: 2, hoverRotate: -2 },
+  { offset: -0.45, y: 0, rotate: 5, hoverY: -9, hoverRotate: 1 },
+  { offset: 0.45, y: 18, rotate: -5, hoverY: 6, hoverRotate: -1 },
+  { offset: 1.35, y: 4, rotate: 6, hoverY: -6, hoverRotate: 2 },
 ]
+
+function desktopPositions(cardWidth: number): CardPosition[] {
+  return desktopLayout.map(({ offset, y, rotate, hoverY, hoverRotate }) => ({
+    x: offset * cardWidth,
+    y,
+    rotate,
+    hoverX: offset * cardWidth * 1.03,
+    hoverY,
+    hoverRotate,
+  }))
+}
 
 const compactPositions: CardPosition[] = [
   { x: -76, y: 8, rotate: -7, hoverX: -80, hoverY: 1, hoverRotate: -2 },
   { x: 0, y: 0, rotate: 5, hoverX: 0, hoverY: -7, hoverRotate: 1 },
   { x: 76, y: 12, rotate: -5, hoverX: 80, hoverY: 5, hoverRotate: 2 },
+  { x: 152, y: 4, rotate: 6, hoverX: 156, hoverY: -3, hoverRotate: 2 },
 ]
 
 function cardVariants(position: CardPosition, index: number): Variants {
@@ -48,6 +63,20 @@ function cardVariants(position: CardPosition, index: number): Variants {
   }
 }
 
+/** Mirrors the desktop .blog-reveal-card width: clamp(14rem, 24vw, 19rem). */
+function useDesktopCardWidth() {
+  const read = () => Math.min(304, Math.max(224, window.innerWidth * 0.24))
+  const [width, setWidth] = useState(read)
+
+  useEffect(() => {
+    const update = () => setWidth(read())
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  return width
+}
+
 function useCompactLayout() {
   const [compact, setCompact] = useState(() => window.matchMedia('(max-width: 899px)').matches)
 
@@ -65,10 +94,20 @@ type BlogMedia =
   | { kind: 'image'; src: string; alt: string }
   | { kind: 'video'; src: string; poster: string; alt: string; fit: 'cover' | 'contain' }
 
-const posts: { index: string; title: string; category: string; media: BlogMedia }[] = [
+const posts: { index: string; title: string; fullTitle?: string; category: string; media: BlogMedia }[] = [
   {
     index: '01',
-    title: 'Build log',
+    title: 'Leg assembly',
+    category: 'Hardware',
+    media: {
+      kind: 'image',
+      src: benchSessionImage,
+      alt: 'Team member fitting a printed part onto an orange rod, with leg components and wiring spread across the table',
+    },
+  },
+  {
+    index: '02',
+    title: 'Single leg prototype',
     category: 'Hardware',
     media: {
       kind: 'image',
@@ -77,8 +116,9 @@ const posts: { index: string; title: string; category: string; media: BlogMedia 
     },
   },
   {
-    index: '02',
-    title: 'Policy rollout',
+    index: '03',
+    title: 'Trained leg policy',
+    fullTitle: 'Single leg trained policy in simulation',
     category: 'Simulation',
     media: {
       kind: 'video',
@@ -89,9 +129,9 @@ const posts: { index: string; title: string; category: string; media: BlogMedia 
     },
   },
   {
-    index: '03',
-    title: 'Field notes',
-    category: 'Quadruped',
+    index: '04',
+    title: 'Simulated quadruped',
+    category: 'Simulation',
     media: {
       kind: 'video',
       src: quadrupedWalkVideo,
@@ -155,7 +195,8 @@ function MediaView({ media, className, controls }: { media: BlogMedia; className
 export function BlogImageReveal() {
   const reducedMotion = useReducedMotion()
   const compact = useCompactLayout()
-  const positions = compact ? compactPositions : desktopPositions
+  const cardWidth = useDesktopCardWidth()
+  const positions = compact ? compactPositions : desktopPositions(cardWidth)
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
   const openPost = openIndex === null ? null : posts[openIndex]
@@ -171,7 +212,7 @@ export function BlogImageReveal() {
     <>
       <figure
         className="blog-image-reveal"
-        aria-label="Project media: build photo and simulation clips"
+        aria-label="Project media: build photos and simulation clips"
         tabIndex={compact ? 0 : undefined}
       >
         {posts.map((post, index) => (
@@ -184,7 +225,7 @@ export function BlogImageReveal() {
             whileInView={compact || reducedMotion ? undefined : 'animate'}
             whileHover={compact || reducedMotion ? undefined : 'hover'}
             viewport={{ once: true, amount: 0.45 }}
-            style={{ zIndex: posts.length - index }}
+            style={{ zIndex: index + 1 }}
           >
             <div className="blog-placeholder">
               <div className="blog-placeholder__meta">
@@ -198,23 +239,24 @@ export function BlogImageReveal() {
               </div>
               <div className="blog-placeholder__footer">
                 <span>{post.category}</span>
-                <span>Coming soon</span>
+                <span>{post.media.kind === 'video' ? 'Video' : 'Photo'}</span>
               </div>
               <button
                 type="button"
                 className="blog-card-open"
-                aria-label={`View ${post.title} larger`}
+                aria-label={`View ${post.fullTitle ?? post.title} larger`}
                 onClick={() => setOpenIndex(index)}
               />
             </div>
           </motion.div>
         ))}
       </figure>
+      <p className="blog-coming-soon">Blog posts coming soon.</p>
 
       <dialog
         ref={dialogRef}
         className="blog-lightbox"
-        aria-label={openPost ? openPost.title : 'Media viewer'}
+        aria-label={openPost ? (openPost.fullTitle ?? openPost.title) : 'Media viewer'}
         onClose={() => setOpenIndex(null)}
         onClick={(event) => {
           if (event.target === event.currentTarget) setOpenIndex(null)
@@ -224,7 +266,7 @@ export function BlogImageReveal() {
           <div className="blog-lightbox__panel">
             <div className="blog-lightbox__bar">
               <span>
-                {openPost.index} / {openPost.title} / {openPost.category}
+                {openPost.index} / {openPost.fullTitle ?? openPost.title} / {openPost.category}
               </span>
               <button type="button" className="blog-lightbox__close" onClick={() => setOpenIndex(null)}>
                 Close
